@@ -22,7 +22,7 @@ class TrackedObject(object):
     _type_mapping = {}
 
     def __new__(cls, *args, **kwds):
-        tracked = super().__new__(cls, *args, **kwds)
+        tracked = super(TrackedObject, cls).__new__(cls, *args, **kwds)
         tracked.parent = None
         return tracked
 
@@ -180,6 +180,6 @@ class TrackedList(TrackedObject, list):
         self.changed("pop: %d", index)
         return super(TrackedList, self).pop(index)
 
-    def sort(self, *, key=None, reverse=False):
+    def sort(self, key=None, reverse=False, *args):
         self.changed("sort")
         super(TrackedList, self).sort(key=key, reverse=reverse)

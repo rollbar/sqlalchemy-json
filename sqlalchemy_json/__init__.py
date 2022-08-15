@@ -13,7 +13,7 @@ class NestedMutableDict(TrackedDict, Mutable):
             return value
         if isinstance(value, dict):
             return cls(value)
-        return super(cls).coerce(key, value)
+        return super(NestedMutableList, cls).coerce(key, value)
 
 
 class NestedMutableList(TrackedList, Mutable):
@@ -23,7 +23,7 @@ class NestedMutableList(TrackedList, Mutable):
             return value
         if isinstance(value, list):
             return cls(value)
-        return super(cls).coerce(key, value)
+        return super(NestedMutableList, cls).coerce(key, value)
 
 
 class NestedMutable(Mutable):
@@ -40,7 +40,7 @@ class NestedMutable(Mutable):
             return NestedMutableDict.coerce(key, value)
         if isinstance(value, list):
             return NestedMutableList.coerce(key, value)
-        return super(cls).coerce(key, value)
+        return super(NestedMutable, cls).coerce(key, value)
 
 
 def mutable_json_type(dbtype=JSON, nested=False):
