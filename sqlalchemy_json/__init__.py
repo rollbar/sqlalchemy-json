@@ -4,6 +4,7 @@ from sqlalchemy.ext.mutable import (
 from sqlalchemy_utils.types.json import JSONType
 
 from . track import (
+    TrackedObject,
     TrackedDict,
     TrackedList)
 
@@ -16,8 +17,20 @@ class _PickleMixin(object):
         d.pop("_parents", None)
         return d
 
+    def __setstate__(self, state):
+        self.__dict__.update(state)
 
-class NestedMutableDict(TrackedDict, Mutable, _PickleMixin):
+        def update_parent_ref(node, parent=None):
+            if isinstance(node, TrackedObject):
+                node.parent = parent
+                values = node.values() if isinstance(node, dict) else node
+                for value in values:
+                    update_parent_ref(value, node)
+
+        update_parent_ref(self)
+
+
+class NestedMutableDict(_PickleMixin, TrackedDict, Mutable):
     @classmethod
     def coerce(cls, key, value):
         if isinstance(value, cls):
@@ -27,7 +40,7 @@ class NestedMutableDict(TrackedDict, Mutable, _PickleMixin):
         return super(cls).coerce(key, value)
 
 
-class NestedMutableList(TrackedList, Mutable, _PickleMixin):
+class NestedMutableList(_PickleMixin, TrackedList, Mutable):
     @classmethod
     def coerce(cls, key, value):
         if isinstance(value, cls):
